@@ -28,7 +28,7 @@
     "nativeSignIn": "https://bindery.example.com/api/auth/native/signin",
     "nativeRefresh": "https://bindery.example.com/api/auth/native/refresh",
     "nativeRevoke": "https://bindery.example.com/api/auth/native/revoke",
-    "me": "https://bindery.example.com/api/auth/me",
+    "me": "http://bindery.example.com/api/auth/me",
     "link": "https://bindery.example.com/api/auth/native/link",
     "inviteAccept": null,
     "deleteAccount": null,
