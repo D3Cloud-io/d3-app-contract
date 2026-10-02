@@ -1,0 +1,16 @@
+{
+  "name": "d3-app-contract",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The D3 App contract: what every D3 Cloud product promises a native client.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "validate": "node scripts/validate.mjs"
+  },
+  "devDependencies": {
+    "ajv": "8.17.1",
+    "ajv-formats": "3.0.1"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d3cloud.io/contract/problem.schema.json",
+  "title": "D3 App problem details",
+  "description": "RFC 9457 problem details, as every contract endpoint returns with Content-Type application/problem+json. Registered types are listed in problems/registry.json.",
+  "type": "object",
+  "required": ["type", "title", "status"],
+  "properties": {
+    "type": { "type": "string", "format": "uri" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "type": "integer", "minimum": 400, "maximum": 599 },
+    "detail": { "type": "string" },
+    "instance": { "type": "string" },
+    "retryAfter": { "description": "throttled: seconds before another attempt.", "type": "integer", "minimum": 0 },
+    "maxAgeSeconds": { "description": "step_up_required: how fresh the step-up must be.", "type": "integer", "minimum": 0 }
+  }
+}

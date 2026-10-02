@@ -1,0 +1,33 @@
+{
+  "product": "foreman",
+  "name": "Foreman",
+  "version": "0.10.0",
+  "revision": "a1b2c3d",
+  "contract": 1,
+  "capabilities": [
+    "foreman.brief",
+    "foreman.tasks",
+    "foreman.findings"
+  ],
+  "signIn": {
+    "methods": [
+      "password",
+      "totp",
+      "d3auth"
+    ],
+    "d3auth": {
+      "issuer": "https://auth.example.com",
+      "resource": "https://foreman.example.com"
+    }
+  },
+  "endpoints": {
+    "nativeSignIn": "https://foreman.example.com/api/auth/native/signin",
+    "nativeRefresh": "https://foreman.example.com/api/auth/native/refresh",
+    "nativeRevoke": "https://foreman.example.com/api/auth/native/revoke",
+    "me": "https://foreman.example.com/api/auth/me",
+    "link": "https://foreman.example.com/api/auth/native/link",
+    "inviteAccept": null,
+    "deleteAccount": null,
+    "relayRegister": null
+  }
+}

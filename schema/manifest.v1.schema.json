@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d3cloud.io/contract/manifest.v1.schema.json",
+  "title": "D3 App manifest, contract 1",
+  "description": "Served unauthenticated at /.well-known/d3-app.json. Names the product, the contract version it speaks, its capabilities, how it signs people in, and its native endpoints. Additive changes (new capabilities, new optional fields) do not change the contract number; clients must ignore members they do not know.",
+  "type": "object",
+  "required": [
+    "product",
+    "name",
+    "version",
+    "contract",
+    "capabilities",
+    "signIn",
+    "endpoints"
+  ],
+  "properties": {
+    "product": {
+      "description": "The registered product id. A client refuses a manifest whose product differs from the one the person chose.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]{1,31}$"
+    },
+    "name": {
+      "description": "Display name.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "version": {
+      "description": "The product's own release version.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "revision": {
+      "description": "The build's source revision, if known.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 64
+    },
+    "contract": {
+      "description": "Contract version. This schema is for 1.",
+      "const": 1
+    },
+    "capabilities": {
+      "description": "Namespaced feature flags, <product>.<feature>. A client shows a feature only when its capability is listed.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]{1,31}\\.[a-z][a-z0-9_]{0,47}$"
+      }
+    },
+    "signIn": {
+      "type": "object",
+      "required": [
+        "methods"
+      ],
+      "properties": {
+        "methods": {
+          "description": "Ways this product can sign a person in natively. Clients ignore methods they do not know.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,31}$"
+          }
+        },
+        "d3auth": {
+          "description": "Present only when Sign in with D3 Auth is configured.",
+          "type": "object",
+          "required": [
+            "issuer",
+            "resource"
+          ],
+          "properties": {
+            "issuer": {
+              "$ref": "#/$defs/httpsURL"
+            },
+            "resource": {
+              "description": "The RFC 8707 audience D3 Auth mints this product's tokens for.",
+              "$ref": "#/$defs/httpsURL"
+            }
+          }
+        }
+      }
+    },
+    "endpoints": {
+      "description": "Absolute https URLs. null means this server does not support the endpoint yet.",
+      "type": "object",
+      "required": [
+        "nativeSignIn",
+        "nativeRefresh",
+        "nativeRevoke",
+        "me"
+      ],
+      "properties": {
+        "nativeSignIn": {
+          "$ref": "#/$defs/httpsURL"
+        },
+        "nativeRefresh": {
+          "$ref": "#/$defs/httpsURL"
+        },
+        "nativeRevoke": {
+          "$ref": "#/$defs/httpsURL"
+        },
+        "me": {
+          "$ref": "#/$defs/httpsURL"
+        },
+        "link": {
+          "$ref": "#/$defs/optionalURL"
+        },
+        "inviteAccept": {
+          "$ref": "#/$defs/optionalURL"
+        },
+        "deleteAccount": {
+          "$ref": "#/$defs/optionalURL"
+        },
+        "relayRegister": {
+          "$ref": "#/$defs/optionalURL"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/optionalURL"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "signIn"
+        ],
+        "properties": {
+          "signIn": {
+            "type": "object",
+            "required": [
+              "methods"
+            ],
+            "properties": {
+              "methods": {
+                "type": "array",
+                "contains": {
+                  "const": "d3auth"
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "signIn": {
+            "type": "object",
+            "required": [
+              "d3auth"
+            ]
+          },
+          "endpoints": {
+            "type": "object",
+            "required": [
+              "link"
+            ],
+            "properties": {
+              "link": {
+                "$ref": "#/$defs/httpsURL"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "httpsURL": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://[^\\s/?#]+(/[^\\s]*)?$"
+    },
+    "optionalURL": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/httpsURL"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

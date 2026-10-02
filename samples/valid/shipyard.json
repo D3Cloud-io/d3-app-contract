@@ -1,0 +1,34 @@
+{
+  "product": "shipyard",
+  "name": "Shipyard",
+  "version": "0.6.0",
+  "revision": "a1b2c3d",
+  "contract": 1,
+  "capabilities": [
+    "shipyard.stacks",
+    "shipyard.deploy",
+    "shipyard.approve",
+    "shipyard.rollback"
+  ],
+  "signIn": {
+    "methods": [
+      "password",
+      "totp",
+      "d3auth"
+    ],
+    "d3auth": {
+      "issuer": "https://auth.example.com",
+      "resource": "https://shipyard.example.com"
+    }
+  },
+  "endpoints": {
+    "nativeSignIn": "https://shipyard.example.com/api/auth/native/signin",
+    "nativeRefresh": "https://shipyard.example.com/api/auth/native/refresh",
+    "nativeRevoke": "https://shipyard.example.com/api/auth/native/revoke",
+    "me": "https://shipyard.example.com/api/auth/me",
+    "link": "https://shipyard.example.com/api/auth/native/link",
+    "inviteAccept": null,
+    "deleteAccount": null,
+    "relayRegister": null
+  }
+}

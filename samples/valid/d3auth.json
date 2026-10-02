@@ -1,0 +1,30 @@
+{
+  "product": "d3auth",
+  "name": "D3 Auth",
+  "version": "0.4.0",
+  "revision": "a1b2c3d",
+  "contract": 1,
+  "capabilities": [
+    "d3auth.account",
+    "d3auth.apps",
+    "d3auth.sessions",
+    "d3auth.admin"
+  ],
+  "signIn": {
+    "methods": [
+      "password",
+      "totp",
+      "recovery_code"
+    ]
+  },
+  "endpoints": {
+    "nativeSignIn": "https://auth.example.com/api/account/native/signin",
+    "nativeRefresh": "https://auth.example.com/api/account/native/refresh",
+    "nativeRevoke": "https://auth.example.com/api/account/native/revoke",
+    "me": "https://auth.example.com/api/account/me",
+    "link": null,
+    "inviteAccept": null,
+    "deleteAccount": null,
+    "relayRegister": null
+  }
+}

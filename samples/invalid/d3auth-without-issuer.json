@@ -1,0 +1,34 @@
+{
+  "product": "bindery",
+  "name": "Bindery",
+  "version": "1.9.0",
+  "revision": "a1b2c3d",
+  "contract": 1,
+  "capabilities": [
+    "bindery.search",
+    "bindery.viewer",
+    "bindery.upload",
+    "bindery.vault",
+    "bindery.review",
+    "bindery.ask"
+  ],
+  "signIn": {
+    "methods": [
+      "password",
+      "totp",
+      "recovery_code",
+      "d3auth"
+    ]
+  },
+  "endpoints": {
+    "nativeSignIn": "https://bindery.example.com/api/auth/native/signin",
+    "nativeRefresh": "https://bindery.example.com/api/auth/native/refresh",
+    "nativeRevoke": "https://bindery.example.com/api/auth/native/revoke",
+    "me": "https://bindery.example.com/api/auth/me",
+    "link": "https://bindery.example.com/api/auth/native/link",
+    "inviteAccept": null,
+    "deleteAccount": null,
+    "relayRegister": null
+  },
+  "$invalidBecause": "d3auth is a sign-in method but signIn.d3auth is missing."
+}

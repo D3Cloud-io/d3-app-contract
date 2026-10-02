@@ -1,0 +1,35 @@
+{
+  "product": "postroom",
+  "name": "Postroom",
+  "version": "0.17.0",
+  "revision": "a1b2c3d",
+  "contract": 1,
+  "capabilities": [
+    "postroom.mail",
+    "postroom.compose",
+    "postroom.search",
+    "postroom.events"
+  ],
+  "signIn": {
+    "methods": [
+      "password",
+      "totp",
+      "recovery_code",
+      "d3auth"
+    ],
+    "d3auth": {
+      "issuer": "https://auth.example.com",
+      "resource": "https://mail.example.com"
+    }
+  },
+  "endpoints": {
+    "nativeSignIn": "https://mail.example.com/api/auth/native/signin",
+    "nativeRefresh": "https://mail.example.com/api/auth/native/refresh",
+    "nativeRevoke": "https://mail.example.com/api/auth/native/revoke",
+    "me": "https://mail.example.com/api/auth/me",
+    "link": "https://mail.example.com/api/auth/native/link",
+    "inviteAccept": null,
+    "deleteAccount": null,
+    "relayRegister": null
+  }
+}

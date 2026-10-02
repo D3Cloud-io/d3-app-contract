@@ -1,0 +1,38 @@
+{
+  "product": "bindery",
+  "name": "Bindery",
+  "version": "1.9.0",
+  "revision": "a1b2c3d",
+  "contract": 1,
+  "capabilities": [
+    "bindery.search",
+    "bindery.viewer",
+    "bindery.upload",
+    "bindery.vault",
+    "bindery.review",
+    "bindery.ask"
+  ],
+  "signIn": {
+    "methods": [
+      "password",
+      "totp",
+      "recovery_code",
+      "d3auth"
+    ],
+    "d3auth": {
+      "issuer": "https://auth.example.com",
+      "resource": "https://bindery.example.com"
+    }
+  },
+  "endpoints": {
+    "nativeSignIn": "https://bindery.example.com/api/auth/native/signin",
+    "nativeRefresh": "https://bindery.example.com/api/auth/native/refresh",
+    "nativeRevoke": "https://bindery.example.com/api/auth/native/revoke",
+    "me": "https://bindery.example.com/api/auth/me",
+    "link": null,
+    "inviteAccept": null,
+    "deleteAccount": null,
+    "relayRegister": null
+  },
+  "$invalidBecause": "d3auth is a sign-in method but the link endpoint is null."
+}
