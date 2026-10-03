@@ -14,6 +14,27 @@ build these URLs themselves. All errors are `application/problem+json` with a re
 | Refresh | `POST nativeRefresh {refreshToken}` | `200 {accessToken, refreshToken, expiresIn}` | `refresh_reused`, `session_revoked` |
 | Revoke | `POST nativeRevoke` with `Authorization: Bearer` | `204` | — |
 
+| Re-enrol | `POST nativeSignIn {challenge, enrolTotp}` | as Second factor, plus optional `recoveryCodes: [...]` | `invalid_code`, `throttled` |
+
+### Re-enrolment after a recovery code
+
+A product that requires a new second factor after a recovery-code sign-in answers the second-factor
+step with `403 reenrol_required`, carrying two extension members (CON-ADR-014):
+
+```json
+{
+  "type": "https://d3cloud.io/problems/reenrol_required",
+  "status": 403,
+  "challenge": "<a fresh sign-in challenge>",
+  "enrolment": { "secret": "JBSWY3DPEHPK3PXP", "otpauthUri": "otpauth://totp/...", "digits": 6, "period": 30 }
+}
+```
+
+The client shows the secret (and the `otpauth://` link) so the person adds it to their authenticator,
+then sends the first code as `enrolTotp` with the new challenge. A wrong code answers `invalid_code` and
+leaves the challenge valid. If the success body carries `recoveryCodes`, the client shows them once.
+Clients never generate one-time codes themselves.
+
 - Access tokens are short-lived: the product's choice, at most 15 minutes.
 - **Refresh tokens rotate on every use** and slide a 30-day window. Presenting a rotated refresh token
   revokes the whole session and answers `refresh_reused`. A client must never refresh the same token
