@@ -1,17 +1,89 @@
 {
-  "base": "https://d3cloud.io/problems/",
-  "types": [
-    { "name": "invalid_credentials", "status": 401, "meaning": "Wrong email or password.", "client": "Inline field error." },
-    { "name": "totp_required", "status": 401, "meaning": "A second factor is needed.", "client": "Show the code step." },
-    { "name": "invalid_code", "status": 401, "meaning": "Wrong TOTP or recovery code.", "client": "Inline error." },
-    { "name": "reenrol_required", "status": 403, "meaning": "Signed in with a recovery code; the second factor must be re-enrolled.", "client": "Native re-enrolment." },
-    { "name": "throttled", "status": 429, "meaning": "Too many attempts. Carries retryAfter.", "client": "Count down; never retry sooner." },
-    { "name": "identity_not_linked", "status": 401, "meaning": "The D3 Auth identity is not linked to an account here.", "client": "Run the link flow." },
-    { "name": "refresh_reused", "status": 401, "meaning": "A rotated refresh token was replayed; the session is revoked.", "client": "Sign in again." },
-    { "name": "session_revoked", "status": 401, "meaning": "The session was revoked server-side.", "client": "Sign in again, keeping drafts." },
-    { "name": "step_up_required", "status": 403, "meaning": "A fresh step-up is needed. Carries maxAgeSeconds.", "client": "Device authentication, then step-up." },
-    { "name": "capability_missing", "status": 404, "meaning": "This server lacks the capability.", "client": "Hide the feature." },
-    { "name": "last_owner", "status": 409, "meaning": "The last owner cannot delete themselves.", "client": "Explain." },
-    { "name": "forbidden_role", "status": 403, "meaning": "The account's role does not permit this.", "client": "Permission state." }
-  ]
+ "base": "https://d3cloud.io/problems/",
+ "types": [
+  {
+   "name": "invalid_credentials",
+   "status": 401,
+   "meaning": "Wrong email or password.",
+   "client": "Inline field error."
+  },
+  {
+   "name": "totp_required",
+   "status": 401,
+   "meaning": "A second factor is needed.",
+   "client": "Show the code step."
+  },
+  {
+   "name": "invalid_code",
+   "status": 401,
+   "meaning": "Wrong TOTP or recovery code.",
+   "client": "Inline error."
+  },
+  {
+   "name": "reenrol_required",
+   "status": 403,
+   "meaning": "Signed in with a recovery code; the second factor must be re-enrolled.",
+   "client": "Native re-enrolment."
+  },
+  {
+   "name": "throttled",
+   "status": 429,
+   "meaning": "Too many attempts. Carries retryAfter.",
+   "client": "Count down; never retry sooner."
+  },
+  {
+   "name": "identity_not_linked",
+   "status": 401,
+   "meaning": "The D3 Auth identity is not linked to an account here.",
+   "client": "Run the link flow."
+  },
+  {
+   "name": "refresh_reused",
+   "status": 401,
+   "meaning": "A rotated refresh token was replayed; the session is revoked.",
+   "client": "Sign in again."
+  },
+  {
+   "name": "session_revoked",
+   "status": 401,
+   "meaning": "The session was revoked server-side.",
+   "client": "Sign in again, keeping drafts."
+  },
+  {
+   "name": "step_up_required",
+   "status": 403,
+   "meaning": "A fresh step-up is needed. Carries maxAgeSeconds.",
+   "client": "Device authentication, then step-up."
+  },
+  {
+   "name": "capability_missing",
+   "status": 404,
+   "meaning": "This server lacks the capability.",
+   "client": "Hide the feature."
+  },
+  {
+   "name": "last_owner",
+   "status": 409,
+   "meaning": "The last owner cannot delete themselves.",
+   "client": "Explain."
+  },
+  {
+   "name": "forbidden_role",
+   "status": 403,
+   "meaning": "The account's role does not permit this.",
+   "client": "Permission state."
+  },
+  {
+   "name": "invite_invalid",
+   "status": 410,
+   "meaning": "The invite token was used, revoked or expired.",
+   "client": "Explain; ask for a new invite."
+  },
+  {
+   "name": "weak_password",
+   "status": 422,
+   "meaning": "The new password does not meet the product's policy; detail says how.",
+   "client": "Show detail by the field."
+  }
+ ]
 }

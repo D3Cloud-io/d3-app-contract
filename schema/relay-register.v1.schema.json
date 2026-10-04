@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d3cloud.io/contract/relay-register.v1.schema.json",
+  "title": "Relay registration",
+  "description": "The body a client sends to a product's relayRegister endpoint (spec/push.md, CON-ADR-016).",
+  "type": "object",
+  "required": ["devicePublicKey", "relay", "categories"],
+  "properties": {
+    "devicePublicKey": {
+      "description": "base64 of a P-256 public key in X9.63 uncompressed form (65 bytes: 87 characters and one =).",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{87}=$"
+    },
+    "relay": {
+      "type": "object",
+      "required": ["url", "registration", "sendKey"],
+      "properties": {
+        "url": { "type": "string", "pattern": "^https://[^\\s/?#]+(/[^\\s]*)?$" },
+        "registration": { "type": "string", "minLength": 8, "maxLength": 128 },
+        "sendKey": { "type": "string", "minLength": 32, "maxLength": 256 }
+      },
+      "additionalProperties": false
+    },
+    "categories": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9]{1,31}\\.[a-z][a-z0-9_-]{0,47}$" }
+    }
+  }
+}

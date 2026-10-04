@@ -1,0 +1,6 @@
+{
+  "$invalidBecause": "products never receive an APNs token (CON-ADR-016)",
+  "devicePublicKey": "BBLcjZLLcuWSUfKgVDXCzBz6CzP32XT/MaDGJ2H1YdKvOJpFx89yTUiEeTX2bH/eKvjaal3QqTBxsTcSFEfkqkc=",
+  "apnsToken": "abababababababababababababababababababababababababababababababab",
+  "categories": []
+}

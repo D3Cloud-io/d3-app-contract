@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # Every schema's samples behave: the valid pass, the invalid fail for the reason they give.
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run validate
+
+  # The suite tests itself against the reference product, conforming and broken one promise at a time.
+  suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: The CLI against the reference product
+        run: |
+          node reference/server.mjs 8799 &
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:8799/.well-known/d3-app.json >/dev/null && break; sleep 0.5; done
+          node conformance/cli.mjs --base http://127.0.0.1:8799 --allow-http --product bindery \
+            --email owner@example.com --password 'owner password 1!' --totp-secret JBSWY3DPEHPK3PXP \
+            --totp-reuse-allowed --main-is-last-owner --destructive --invite-token invite-conformance \
+            --delete-email member@example.com --delete-password 'member password 1!' --delete-totp-secret KRSXG5CTMVRXEZLU \
+            --junit conformance.xml
+
+  # The image products run: built and smoke-tested on every change, published from main.
+  image:
+    needs: [validate, suite]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/d3-app-conformance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Build
+        run: docker build -t "$IMAGE:sha-${GITHUB_SHA::7}" -t "$IMAGE:contract-1" .
+      - name: Smoke test the image against the reference product
+        run: |
+          docker run -d --rm --name reference --network host --entrypoint node "$IMAGE:sha-${GITHUB_SHA::7}" /contract/reference/server.mjs 8799
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:8799/.well-known/d3-app.json >/dev/null && break; sleep 0.5; done
+          docker run --rm --network host "$IMAGE:sha-${GITHUB_SHA::7}" --base http://127.0.0.1:8799 --allow-http --product bindery \
+            --email owner@example.com --password 'owner password 1!' --totp-secret JBSWY3DPEHPK3PXP --totp-reuse-allowed
+          docker stop reference
+      - name: Publish
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push "$IMAGE:sha-${GITHUB_SHA::7}"
+          docker push "$IMAGE:contract-1"

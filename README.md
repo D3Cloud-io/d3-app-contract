@@ -10,7 +10,11 @@ and a product that does not, does not appear.
 | Problem details (RFC 9457) | [`schema/problem.schema.json`](schema/problem.schema.json) |
 | Registered problem types | [`problems/registry.json`](problems/registry.json) |
 | Native sign-in, refresh, revoke, D3 Auth linking | [`spec/native-auth.md`](spec/native-auth.md) |
-| Sample manifests that must pass, and ones that must fail | [`samples/`](samples) |
+| Phase II: invite acceptance and account deletion | [`spec/account-lifecycle.md`](spec/account-lifecycle.md) |
+| Phase II: push — relay registration, the envelope, categories | [`spec/push.md`](spec/push.md), [`schema/relay-register.v1.schema.json`](schema/relay-register.v1.schema.json), [`schema/notification.v1.schema.json`](schema/notification.v1.schema.json), [`vectors/`](vectors) |
+| Phase II: D3 Auth sign-in approval by number matching | [`spec/sign-in-approval.md`](spec/sign-in-approval.md) |
+| Samples that must pass, and ones that must fail, for every schema | [`samples/`](samples) |
+| The conformance suite (CLI and image) and a reference product it is proven against | [`conformance/`](conformance), [`reference/`](reference) |
 
 The contract is version **1**. Additive changes keep the number; breaking changes increment it, and
 clients support the current version and the one before.
@@ -59,22 +63,44 @@ Every URL is https. Listing `d3auth` as a method requires `signIn.d3auth` and a 
 | `capability_missing` | 404 | The server lacks the capability |
 | `last_owner` | 409 | The last owner cannot delete themselves |
 | `forbidden_role` | 403 | The account's role does not permit this |
+| `invite_invalid` | 410 | The invite token was used, revoked or expired |
+| `weak_password` | 422 | The new password misses the product's policy; `detail` says how |
 
 ## Checking it
 
 ```bash
 npm ci
-npm run validate
+npm run validate   # every schema's samples, the problem registry, the envelope vectors
+npm test           # the suite against the reference product, conforming and broken one promise at a time
 ```
 
-Every manifest in `samples/valid` must pass and every one in `samples/invalid` must fail — each says
-why in `$invalidBecause`. CI runs the same check on every push.
+CI runs both on every push, smoke-tests the CLI and the image against the reference product, and on
+`main` publishes the image as `ghcr.io/matdemers1/d3-app-conformance:contract-1` (and `:sha-<commit>`).
 
-## Coming next
+## Running the suite in a product's CI (CON-REQ-026)
 
-A runnable conformance suite (container image and CLI) that each product's CI runs against a test
-instance: the manifest, the native sign-in, refresh, reuse and revoke flow, throttling, audience and
-linking, Bearer on a representative route, and the problem types.
+Start the product's test instance with a seeded account that has an authenticator, then:
+
+```bash
+docker run --rm --network host ghcr.io/matdemers1/d3-app-conformance:contract-1 \
+  --base http://localhost:8080 --allow-http --product bindery \
+  --email ci@example.com --password "$CI_PASSWORD" --totp-secret "$CI_TOTP_SECRET" \
+  --junit conformance.xml
+```
+
+| Option | For |
+|---|---|
+| `--allow-http` | A local CI instance; the schema's https rule is then checked on paths only |
+| `--invite-token` | A fresh invite, to accept one (`--destructive`) |
+| `--delete-email`, `--delete-password`, `--delete-totp-secret` | A disposable account to delete (`--destructive`) |
+| `--main-is-last-owner` | The seeded account is the instance's only owner: deleting it must be `last_owner` |
+| `--destructive` | Also throttle the account and run the invite and deletion checks |
+| `--totp-reuse-allowed` | The instance accepts a code twice; otherwise the suite waits for a fresh one |
+| `--only signin,refresh` | Run only checks whose id starts with these |
+
+Checks for phase II endpoints run when the manifest names them and skip when they are `null`. The
+exit status is non-zero when any check fails. While this repository is private, pulling the image
+needs a token with `read:packages` (`docker login ghcr.io`).
 
 ## Licence
 

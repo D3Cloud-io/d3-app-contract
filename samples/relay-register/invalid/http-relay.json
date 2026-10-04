@@ -1,0 +1,10 @@
+{
+  "$invalidBecause": "the relay is https only",
+  "devicePublicKey": "BBLcjZLLcuWSUfKgVDXCzBz6CzP32XT/MaDGJ2H1YdKvOJpFx89yTUiEeTX2bH/eKvjaal3QqTBxsTcSFEfkqkc=",
+  "relay": {
+    "url": "http://relay.example.com",
+    "registration": "0b6c9c8e-6f1a-4c3e",
+    "sendKey": "Zm9vYmFyYmF6cXV4Zm9vYmFyYmF6cXV4Zm9vYmFyYmE"
+  },
+  "categories": []
+}

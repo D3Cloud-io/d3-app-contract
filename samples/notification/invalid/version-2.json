@@ -1,0 +1,8 @@
+{
+  "$invalidBecause": "this schema is version 1",
+  "v": 2,
+  "category": "postroom.priority",
+  "title": "x",
+  "body": "y",
+  "sentAt": "2026-10-04T12:00:00Z"
+}

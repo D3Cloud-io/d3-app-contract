@@ -5,11 +5,19 @@
   "description": "The D3 App contract: what every D3 Cloud product promises a native client.",
   "license": "Apache-2.0",
   "type": "module",
-  "engines": { "node": ">=22" },
-  "scripts": {
-    "validate": "node scripts/validate.mjs"
+  "engines": {
+    "node": ">=22"
   },
-  "devDependencies": {
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "test": "node --test test/conformance.test.mjs",
+    "conformance": "node conformance/cli.mjs",
+    "reference": "node reference/server.mjs"
+  },
+  "bin": {
+    "d3-app-conformance": "conformance/cli.mjs"
+  },
+  "dependencies": {
     "ajv": "8.17.1",
     "ajv-formats": "3.0.1"
   }

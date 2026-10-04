@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d3cloud.io/contract/notification.v1.schema.json",
+  "title": "D3 notification payload, version 1",
+  "description": "The plaintext a product seals in a relay envelope (spec/push.md). Clients ignore members they don't know.",
+  "type": "object",
+  "required": ["v", "category", "title", "body", "sentAt"],
+  "properties": {
+    "v": { "const": 1 },
+    "category": { "type": "string", "pattern": "^[a-z][a-z0-9]{1,31}\\.[a-z][a-z0-9_-]{0,47}$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "body": { "type": "string", "maxLength": 600 },
+    "thread": { "type": "string", "maxLength": 120 },
+    "link": { "type": "string", "pattern": "^d3constellation://[^\\s/?#]+/[a-z][a-z0-9]{1,31}(/[^\\s]*)?$" },
+    "sentAt": { "type": "string", "format": "date-time" }
+  }
+}

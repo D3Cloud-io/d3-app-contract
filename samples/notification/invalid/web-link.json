@@ -1,0 +1,9 @@
+{
+  "$invalidBecause": "a link must be a d3constellation:// link, never a web URL",
+  "v": 1,
+  "category": "postroom.priority",
+  "title": "x",
+  "body": "y",
+  "link": "https://evil.example/",
+  "sentAt": "2026-10-04T12:00:00Z"
+}
