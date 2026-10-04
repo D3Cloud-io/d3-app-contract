@@ -19,6 +19,11 @@ POST relayRegister
 ```
 
 - Answer `204`. Registering again replaces the earlier registration for that session.
+- Then send one notification to it, category `<product>.registered` ("Notifications are on"), within
+  ten seconds. It tells the person push works, and it is what the conformance suite's `relay.delivers`
+  check waits for.
+- `relay.url` is https. A product's test configuration may also accept a loopback `http://127.0.0.1`
+  relay, so CI can run the suite's mock relay; production never does.
 - The registration belongs to the session: revoking the session (sign-out, `session_revoked`,
   `refresh_reused`) forgets it.
 - `categories` lists what the device wants; send nothing else ([categories](#categories)).
@@ -71,6 +76,7 @@ and sealed envelopes: a product's tests should open them, and Constellation's te
 | `d3auth.login` | D3 Auth | A new sign-in to the account |
 | `d3auth.signin-approval` | D3 Auth | A sign-in waits for this phone ([`sign-in-approval.md`](sign-in-approval.md)) |
 | `bindery.review` | Bindery | Documents wait in Review |
+| `<product>.registered` | Every product | Once, after each registration |
 
 Titles and bodies say what happened in the person's words; they never carry secrets, codes or links
 that sign in.

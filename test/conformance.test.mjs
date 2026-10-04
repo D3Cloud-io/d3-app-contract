@@ -12,7 +12,8 @@ async function suite(broken = [], extra = {}) {
     return await runChecks({
       base: server.base, product: "bindery", email: owner.email, password: owner.password, totpSecret: owner.totpSecret,
       allowHttp: true, totpReuseAllowed: true, destructive: true, mainIsLastOwner: true, inviteToken: INVITE_TOKEN,
-      disposable: { email: member.email, password: member.password, totpSecret: member.totpSecret }, ...extra,
+      disposable: { email: member.email, password: member.password, totpSecret: member.totpSecret },
+      relayListen: 18_000 + Math.floor(Math.random() * 2000), ...extra,
     });
   } finally {
     await server.close();
@@ -35,6 +36,7 @@ describe("conformance suite", () => {
     ["revoke", "revoke.ends-session"],
     ["invite", "invite.accept"],
     ["relay", "relay.register"],
+    ["relay-plaintext", "relay.delivers"],
   ]) {
     it(`catches a product that breaks "${broken}" in ${check}`, async () => {
       const results = await suite([broken]);

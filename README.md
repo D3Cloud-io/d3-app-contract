@@ -96,6 +96,8 @@ docker run --rm --network host ghcr.io/matdemers1/d3-app-conformance:contract-1 
 | `--main-is-last-owner` | The seeded account is the instance's only owner: deleting it must be `last_owner` |
 | `--destructive` | Also throttle the account and run the invite and deletion checks |
 | `--totp-reuse-allowed` | The instance accepts a code twice; otherwise the suite waits for a fresh one |
+| `--relay-listen 8790` | Run a mock relay on this port and check the registration notification arrives sealed to the device (`relay.delivers`) |
+| `--relay-public-url` | Where the product reaches that mock relay, when not `http://127.0.0.1:<port>` (e.g. `http://host.docker.internal:8790`) |
 | `--only signin,refresh` | Run only checks whose id starts with these |
 
 Checks for phase II endpoints run when the manifest names them and skip when they are `null`. The

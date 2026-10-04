@@ -5,6 +5,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
+import { seal, sign } from "../conformance/envelope.mjs";
 import { totp } from "../conformance/totp.mjs";
 
 export const ACCOUNTS = {
@@ -121,8 +122,24 @@ export function startReference({ product = "bindery", port = 0, broken = new Set
     }
     if (req.method === "POST" && path === "/api/push/native/register") {
       if (!bearer(req)) return problem(res, 401, "session_revoked");
-      if (!broken.has("relay") && !relaySchema(body)) return problem(res, 400, "invalid_request");
-      return send(res, 204);
+      // A test instance may name a loopback relay over http; anything else must be https.
+      const relayUrl = typeof body.relay?.url === "string" ? body.relay.url : "";
+      const loopback = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/.test(relayUrl);
+      const checked = loopback ? { ...body, relay: { ...body.relay, url: relayUrl.replace("http://", "https://") } } : body;
+      if (!broken.has("relay") && !relaySchema(checked)) return problem(res, 400, "invalid_request");
+      send(res, 204);
+      // The registration notification (spec/push.md), sent after answering.
+      if (relayUrl && !relayUrl.includes(".invalid")) {
+        const payload = { v: 1, category: `${product}.registered`, title: "Notifications are on", body: `${product} will tell this device what needs it.`,
+          sentAt: new Date().toISOString() };
+        const ciphertext = broken.has("relay-plaintext") ? Buffer.from(JSON.stringify(payload)).toString("base64") : await seal(body.devicePublicKey, payload);
+        const raw = JSON.stringify({ ciphertext });
+        const timestamp = String(Math.floor(Date.now() / 1000));
+        fetch(`${relayUrl}/v1/push/${body.relay.registration}`, { method: "POST", body: raw,
+          headers: { "content-type": "application/json", "x-d3-relay-timestamp": timestamp, "x-d3-relay-signature": await sign(body.relay.sendKey, timestamp, raw) } })
+          .catch(() => {});
+      }
+      return;
     }
     if (req.method === "POST" && path === "/api/auth/native/invite") {
       if (body.challenge) {

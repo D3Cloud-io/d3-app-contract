@@ -4,6 +4,8 @@
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { readFileSync } from "node:fs";
+import { createServer } from "node:http";
+import { open as openEnvelope, sign } from "./envelope.mjs";
 import { codeSource, totp } from "./totp.mjs";
 
 const here = new URL("..", import.meta.url);
@@ -13,6 +15,7 @@ addFormats(ajv);
 ajv.addKeyword({ keyword: "$invalidBecause" });
 const validManifest = ajv.compile(schema("manifest.v1.schema.json"));
 const validProblem = ajv.compile(schema("problem.schema.json"));
+const validNotification = ajv.compile(schema("notification.v1.schema.json"));
 
 export class Failure extends Error {}
 export class Skip extends Error {}
@@ -169,6 +172,45 @@ export const checks = [
     expect(res.status === 204, `expected 204, got ${res.status}: ${res.text.slice(0, 200)}`);
     const bad = await call(ctx, "POST", endpoint(ctx, "relayRegister"), { body: { devicePublicKey: raw, apnsToken: "ab".repeat(32) }, bearer: ctx.session.accessToken });
     expect(bad.status >= 400 && bad.status < 500, `a registration without a relay was accepted (${bad.status})`);
+  } },
+
+  { id: "relay.delivers", title: "After registering, the product sends a notification only this device can open", run: async (ctx) => {
+    if (!endpoint(ctx, "relayRegister")) skip("relayRegister is null");
+    if (!ctx.config.relayListen) skip("no mock relay (--relay-listen <port>)");
+    if (!ctx.session) skip("no session");
+    const pair = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+    const registration = crypto.randomUUID();
+    const sendKey = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64url");
+    const pushes = [];
+    const relay = createServer(async (req, res) => {
+      let raw = "";
+      for await (const chunk of req) raw += chunk;
+      pushes.push({ path: new URL(req.url, "http://relay").pathname, timestamp: req.headers["x-d3-relay-timestamp"],
+        signature: req.headers["x-d3-relay-signature"], raw });
+      res.writeHead(202, { "content-type": "application/json" });
+      res.end('{"delivered":true}');
+    });
+    await new Promise((resolve) => relay.listen(ctx.config.relayListen, resolve));
+    try {
+      const url = ctx.config.relayPublicUrl ?? `http://127.0.0.1:${ctx.config.relayListen}`;
+      const body = { devicePublicKey: Buffer.from(await crypto.subtle.exportKey("raw", pair.publicKey)).toString("base64"),
+        relay: { url, registration, sendKey }, categories: [] };
+      const res = await call(ctx, "POST", endpoint(ctx, "relayRegister"), { body, bearer: ctx.session.accessToken });
+      expect(res.status === 204, `registration: expected 204, got ${res.status}`);
+      for (let i = 0; i < 60 && pushes.length === 0; i++) await new Promise((r) => setTimeout(r, 250));
+      const push = pushes[0] ?? fail("no notification reached the relay within 15 seconds of registering");
+      expect(push.path === `/v1/push/${registration}`, `pushed to ${push.path}, not /v1/push/${registration}`);
+      expect(Math.abs(Date.now() / 1000 - Number(push.timestamp)) < 300, "the timestamp is missing or more than five minutes out");
+      expect(push.signature === (await sign(sendKey, push.timestamp, push.raw)), "the signature doesn't match the send key");
+      const ciphertext = JSON.parse(push.raw).ciphertext;
+      let payload;
+      try { payload = await openEnvelope(ciphertext, pair); } catch { fail("the ciphertext isn't a version 1 envelope sealed to this device's key"); }
+      expect(!push.raw.includes(payload.title), "the notification's words travel outside the envelope");
+      expect(validNotification(payload), `the payload isn't a valid notification: ${ajv.errorsText(validNotification.errors)}`);
+      expect(payload.category === `${ctx.manifest.product}.registered`, `expected category ${ctx.manifest.product}.registered, got ${payload.category}`);
+    } finally {
+      await new Promise((resolve) => relay.close(resolve));
+    }
   } },
 
   // Phase II: invites

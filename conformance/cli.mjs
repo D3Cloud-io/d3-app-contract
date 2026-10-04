@@ -19,6 +19,7 @@ const { values } = parseArgs({
     "delete-email": { type: "string" }, "delete-password": { type: "string" }, "delete-totp-secret": { type: "string" },
     "main-is-last-owner": { type: "boolean" }, destructive: { type: "boolean" },
     "allow-http": { type: "boolean" }, "totp-reuse-allowed": { type: "boolean" },
+    "relay-listen": { type: "string" }, "relay-public-url": { type: "string" },
     only: { type: "string" }, junit: { type: "string" }, help: { type: "boolean" },
   },
 });
@@ -28,6 +29,7 @@ const pick = (name, key) => values[name] ?? env[key];
 if (values.help || !pick("base", "D3C_BASE")) {
   console.log("usage: d3-app-conformance --base <url> --product <id> --email <e> --password <p> --totp-secret <base32>\n" +
     "       [--invite-token <t>] [--delete-email … --delete-password … --delete-totp-secret …]\n" +
+    "       [--relay-listen <port> [--relay-public-url <url the product reaches it at>]]\n" +
     "       [--main-is-last-owner] [--destructive] [--allow-http] [--only manifest,signin] [--junit file.xml]");
   process.exit(values.help ? 0 : 2);
 }
@@ -50,6 +52,8 @@ const config = {
   destructive: values.destructive ?? false,
   allowHttp: values["allow-http"] ?? false,
   totpReuseAllowed: values["totp-reuse-allowed"] ?? false,
+  relayListen: values["relay-listen"] ? Number(values["relay-listen"]) : undefined,
+  relayPublicUrl: values["relay-public-url"],
 };
 
 const mark = { pass: "ok  ", fail: "FAIL", skip: "skip" };

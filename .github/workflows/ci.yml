@@ -40,7 +40,7 @@ jobs:
             --email owner@example.com --password 'owner password 1!' --totp-secret JBSWY3DPEHPK3PXP \
             --totp-reuse-allowed --main-is-last-owner --destructive --invite-token invite-conformance \
             --delete-email member@example.com --delete-password 'member password 1!' --delete-totp-secret KRSXG5CTMVRXEZLU \
-            --junit conformance.xml
+            --relay-listen 8790 --junit conformance.xml
 
   # The image products run: built and smoke-tested on every change, published from main.
   image:
