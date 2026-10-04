@@ -9,7 +9,7 @@ build these URLs themselves. All errors are `application/problem+json` with a re
 
 | Step | Request | Success | Failure problems |
 |---|---|---|---|
-| Sign in | `POST nativeSignIn {email, password, device: {name, platform}}` | `202 {next: "totp", challenge}` | `invalid_credentials`, `throttled` |
+| Sign in | `POST nativeSignIn {email, password, device: {name, platform}}` | `202 {next: "totp", challenge}`, or — for an account with no second factor — the session at once, as below | `invalid_credentials`, `throttled` |
 | Second factor | `POST nativeSignIn {challenge, totp \| recoveryCode}` | `200 {accessToken, refreshToken, expiresIn, session: {id}}` | `invalid_code`, `reenrol_required`, `throttled` |
 | Refresh | `POST nativeRefresh {refreshToken}` | `200 {accessToken, refreshToken, expiresIn}` | `refresh_reused`, `session_revoked` |
 | Revoke | `POST nativeRevoke` with `Authorization: Bearer` | `204` | — |
@@ -35,6 +35,8 @@ then sends the first code as `enrolTotp` with the new challenge. A wrong code an
 leaves the challenge valid. If the success body carries `recoveryCodes`, the client shows them once.
 Clients never generate one-time codes themselves.
 
+- The challenge is short-lived (minutes) and names the account and device; a forged or expired one
+  answers `invalid_code`, so the person starts again.
 - Access tokens are short-lived: the product's choice, at most 15 minutes.
 - **Refresh tokens rotate on every use** and slide a 30-day window. Presenting a rotated refresh token
   revokes the whole session and answers `refresh_reused`. A client must never refresh the same token
