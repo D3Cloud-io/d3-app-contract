@@ -75,7 +75,6 @@ and sealed envelopes: a product's tests should open them, and Constellation's te
 | `shipyard.approval` | Shipyard | A deploy waits for approval |
 | `d3auth.login` | D3 Auth | A new sign-in to the account |
 | `d3auth.signin-approval` | D3 Auth | A sign-in waits for this phone ([`sign-in-approval.md`](sign-in-approval.md)) |
-| `bindery.review` | Bindery | Documents wait in Review |
 | `<product>.registered` | Every product | Once, after each registration |
 
 Titles and bodies say what happened in the person's words; they never carry secrets, codes or links
