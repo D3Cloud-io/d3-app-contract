@@ -69,6 +69,9 @@ async function signIn(ctx, { email = ctx.config.email, password = ctx.config.pas
 }
 
 const needCredentials = (ctx) => {
+  // D3 Auth signs native clients in through the browser (AUTH-ADR-008): its native session
+  // endpoints are null, and these checks have nothing to ask.
+  if (ctx.manifest && endpoint(ctx, "nativeSignIn") === null) skip("this product signs in through the browser (nativeSignIn is null)");
   if (!ctx.config.email || !ctx.config.password || !ctx.config.totpSecret) skip("no test account (--email, --password, --totp-secret)");
 };
 
@@ -247,12 +250,14 @@ export const checks = [
   { id: "deletion.last-owner", title: "The last owner can't delete themselves", run: async (ctx) => {
     if (!endpoint(ctx, "deleteAccount")) skip("deleteAccount is null");
     if (!ctx.config.mainIsLastOwner) skip("the test account isn't declared the last owner (--main-is-last-owner)");
+    if (!ctx.session) skip("no session");
     const res = await call(ctx, "POST", endpoint(ctx, "deleteAccount"),
       { body: { confirmation: new URL(endpoint(ctx, "deleteAccount")).hostname, totp: await ctx.codes() }, bearer: ctx.session.accessToken });
     expectProblem(res, 409, "last_owner");
   } },
   { id: "deletion.schedules", title: "Deleting a disposable account schedules it at least a day out and ends its sessions", destructive: true, run: async (ctx) => {
     if (!endpoint(ctx, "deleteAccount")) skip("deleteAccount is null");
+    if (endpoint(ctx, "nativeSignIn") === null) skip("this product signs in through the browser (nativeSignIn is null)");
     const d = ctx.config.disposable;
     if (!d) skip("no disposable account (--delete-email, --delete-password, --delete-totp-secret)");
     const codes = codeSource(d.totpSecret, { reuseAllowed: ctx.config.totpReuseAllowed });

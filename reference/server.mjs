@@ -64,10 +64,12 @@ export function startReference({ product = "bindery", port = 0, broken = new Set
       return send(res, 200, {
         product: broken.has("product") ? "someother" : product, name: "Reference", version: "1.0.0", contract: 1,
         capabilities: [`${product}.search`],
-        signIn: { methods: ["password", "totp", "recovery_code"] },
+        // D3 Auth signs native clients in through the browser (AUTH-ADR-008): no native sessions.
+        signIn: { methods: product === "d3auth" ? ["oidc"] : ["password", "totp", "recovery_code"] },
         endpoints: {
-          nativeSignIn: `${base}/api/auth/native/signin`, nativeRefresh: `${base}/api/auth/native/refresh`,
-          nativeRevoke: `${base}/api/auth/native/revoke`, me: `${base}/api/auth/me`,
+          nativeSignIn: product === "d3auth" ? null : `${base}/api/auth/native/signin`,
+          nativeRefresh: product === "d3auth" ? null : `${base}/api/auth/native/refresh`,
+          nativeRevoke: product === "d3auth" ? null : `${base}/api/auth/native/revoke`, me: `${base}/api/auth/me`,
           inviteAccept: `${base}/api/auth/native/invite`, deleteAccount: `${base}/api/account/native/delete`,
           relayRegister: `${base}/api/push/native/register`,
         },

@@ -84,6 +84,42 @@
    "status": 422,
    "meaning": "The new password does not meet the product's policy; detail says how.",
    "client": "Show detail by the field."
+  },
+  {
+   "name": "last_factor",
+   "status": 409,
+   "meaning": "Removing this would leave an admin or owner with no second factor.",
+   "client": "Explain that one passkey or authenticator must stay."
+  },
+  {
+   "name": "owner_protected",
+   "status": 403,
+   "meaning": "The owner cannot be suspended, demoted or removed by someone else.",
+   "client": "Explain; no retry."
+  },
+  {
+   "name": "not_yourself",
+   "status": 409,
+   "meaning": "That action cannot be taken on your own account.",
+   "client": "Explain; no retry."
+  },
+  {
+   "name": "taken",
+   "status": 409,
+   "meaning": "That username or address is already in use.",
+   "client": "Inline field error."
+  },
+  {
+   "name": "already_a_user",
+   "status": 409,
+   "meaning": "Someone with that address already has an account.",
+   "client": "Inline field error on the invite form."
+  },
+  {
+   "name": "already_exists",
+   "status": 409,
+   "meaning": "Something with that name or id is already registered.",
+   "client": "Inline error."
   }
  ]
 }

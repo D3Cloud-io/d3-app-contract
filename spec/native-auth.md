@@ -70,6 +70,27 @@ like sign-in.
 Clients build their screens from the manifest's capabilities and these roles, and hide what the account
 cannot use.
 
+## D3 Auth itself
+
+D3 Auth is the one product with no native session endpoints. A native client signs in to it through
+the browser — authorization code with PKCE, as the public client its `constellation` preset
+registers — and that one grant mints a token for each product's `resource` and one for D3 Auth's own
+issuer (AUTH-ADR-008). So D3 Auth's manifest:
+
+- lists the sign-in method `oidc`, which a client that does not know it ignores;
+- sets `nativeSignIn`, `nativeRefresh` and `nativeRevoke` to null — the only product the schema
+  allows to;
+- names `me`, `accountApps` (the account's apps, each with `homeUrl`, `resource` and, for a D3
+  product, `product`) and `stepUp`, all of which take the token audienced at D3 Auth's issuer.
+
+D3 Auth mints a token for an app's audience only for its Constellation client, and only while the
+person holds a grant to that app; a refusal at the token endpoint never consumes the refresh token.
+
+Step-up on D3 Auth takes `{code}` or `{passkey}` — never a password — and answers
+`{ok, until}`; a change that needs it answers `step_up_required` with `maxAgeSeconds`. Refusals are
+problem+json for any request with a Bearer token or an `Accept` that names
+`application/problem+json`, with the original code kept in a `code` member.
+
 ## Versioning
 
 `contract: 1` is this document. Additive changes — new capabilities, new optional members, new problem

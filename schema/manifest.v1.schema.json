@@ -88,7 +88,7 @@
       }
     },
     "endpoints": {
-      "description": "Absolute https URLs. null means this server does not support the endpoint yet.",
+      "description": "Absolute https URLs. null means this server does not support the endpoint yet. Only D3 Auth may set nativeSignIn, nativeRefresh and nativeRevoke to null: it signs native clients in through the browser (AUTH-ADR-008).",
       "type": "object",
       "required": [
         "nativeSignIn",
@@ -98,13 +98,13 @@
       ],
       "properties": {
         "nativeSignIn": {
-          "$ref": "#/$defs/httpsURL"
+          "$ref": "#/$defs/optionalURL"
         },
         "nativeRefresh": {
-          "$ref": "#/$defs/httpsURL"
+          "$ref": "#/$defs/optionalURL"
         },
         "nativeRevoke": {
-          "$ref": "#/$defs/httpsURL"
+          "$ref": "#/$defs/optionalURL"
         },
         "me": {
           "$ref": "#/$defs/httpsURL"
@@ -167,6 +167,39 @@
             ],
             "properties": {
               "link": {
+                "$ref": "#/$defs/httpsURL"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$comment": "Every product but D3 Auth signs native clients in with JSON sessions, so their native session endpoints are URLs.",
+      "if": {
+        "type": "object",
+        "required": [
+          "product"
+        ],
+        "properties": {
+          "product": {
+            "const": "d3auth"
+          }
+        }
+      },
+      "else": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "object",
+            "properties": {
+              "nativeSignIn": {
+                "$ref": "#/$defs/httpsURL"
+              },
+              "nativeRefresh": {
+                "$ref": "#/$defs/httpsURL"
+              },
+              "nativeRevoke": {
                 "$ref": "#/$defs/httpsURL"
               }
             }
