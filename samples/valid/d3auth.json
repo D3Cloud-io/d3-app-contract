@@ -8,23 +8,24 @@
     "d3auth.account",
     "d3auth.apps",
     "d3auth.sessions",
-    "d3auth.admin"
+    "d3auth.admin",
+    "d3auth.audit"
   ],
   "signIn": {
     "methods": [
-      "password",
-      "totp",
-      "recovery_code"
+      "oidc"
     ]
   },
   "endpoints": {
-    "nativeSignIn": "https://auth.example.com/api/account/native/signin",
-    "nativeRefresh": "https://auth.example.com/api/account/native/refresh",
-    "nativeRevoke": "https://auth.example.com/api/account/native/revoke",
-    "me": "https://auth.example.com/api/account/me",
+    "nativeSignIn": null,
+    "nativeRefresh": null,
+    "nativeRevoke": null,
+    "me": "https://auth.example.com/api/me",
     "link": null,
     "inviteAccept": null,
     "deleteAccount": null,
-    "relayRegister": null
+    "relayRegister": null,
+    "accountApps": "https://auth.example.com/api/account/apps",
+    "stepUp": "https://auth.example.com/api/account/step-up"
   }
 }

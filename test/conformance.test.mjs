@@ -5,12 +5,12 @@ import { describe, it } from "node:test";
 import { runChecks } from "../conformance/checks.mjs";
 import { ACCOUNTS, INVITE_TOKEN, startReference } from "../reference/server.mjs";
 
-async function suite(broken = [], extra = {}) {
-  const server = await startReference({ broken: new Set(broken) });
+async function suite(broken = [], extra = {}, product = "bindery") {
+  const server = await startReference({ broken: new Set(broken), product });
   try {
     const { owner, member } = ACCOUNTS;
     return await runChecks({
-      base: server.base, product: "bindery", email: owner.email, password: owner.password, totpSecret: owner.totpSecret,
+      base: server.base, product, email: owner.email, password: owner.password, totpSecret: owner.totpSecret,
       allowHttp: true, totpReuseAllowed: true, destructive: true, mainIsLastOwner: true, inviteToken: INVITE_TOKEN,
       disposable: { email: member.email, password: member.password, totpSecret: member.totpSecret },
       relayListen: 18_000 + Math.floor(Math.random() * 2000), ...extra,
@@ -49,5 +49,16 @@ describe("conformance suite", () => {
     assert.equal(statusOf(results, "signin.throttled"), "skip");
     assert.equal(statusOf(results, "deletion.schedules"), "skip");
     assert.equal(statusOf(results, "invite.unknown-token"), "pass");
+  });
+
+  it("passes D3 Auth, which signs in through the browser, and skips the native session checks", async () => {
+    const results = await suite([], {}, "d3auth");
+    for (const id of ["manifest.served", "manifest.schema", "manifest.product", "manifest.one-host", "me.unauthenticated"]) {
+      assert.equal(statusOf(results, id), "pass", `${id}: ${JSON.stringify(results.find((r) => r.id === id))}`);
+    }
+    for (const id of ["signin.wrong-password", "signin.wrong-code", "signin.session", "signin.throttled", "refresh.rotates", "revoke.ends-session"]) {
+      assert.equal(statusOf(results, id), "skip", id);
+    }
+    assert.deepEqual(results.filter((r) => r.status === "fail"), []);
   });
 });
