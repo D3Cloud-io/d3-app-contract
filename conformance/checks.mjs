@@ -150,18 +150,6 @@ export const checks = [
     expectProblem(await call(ctx, "POST", need(ctx, "nativeRefresh"), { body: { refreshToken: session.refreshToken } }), 401, "session_revoked");
     ctx.session = await signIn(ctx);
   } },
-  { id: "signin.throttled", title: "Repeated wrong passwords are throttled with retryAfter", destructive: true, run: async (ctx) => {
-    needCredentials(ctx);
-    for (let i = 0; i < 25; i++) {
-      const res = await call(ctx, "POST", need(ctx, "nativeSignIn"), { body: { email: ctx.config.email, password: `wrong-${i}`, device } });
-      if (res.status === 429) {
-        expectProblem(res, 429, "throttled");
-        expect(Number.isInteger(res.json.retryAfter), "throttled carries no retryAfter");
-        return;
-      }
-    }
-    fail("25 wrong passwords were never throttled");
-  } },
 
   // Phase II: push
   { id: "relay.register", title: "relayRegister takes a device key and relay registration", run: async (ctx) => {
@@ -268,6 +256,21 @@ export const checks = [
     const grace = Date.parse(res.json?.graceUntil);
     expect(grace >= Date.now() + 23.9 * 3600 * 1000, `graceUntil ${res.json?.graceUntil} is less than a day away`);
     expect((await call(ctx, "GET", need(ctx, "me"), { bearer: session.accessToken })).status === 401, "the account's session still works");
+  } },
+
+  // Last, because it leaves this client's address throttled: any check after it that is meant to
+  // fail (a wrong code, an unknown invite) would be answered "throttled" instead.
+  { id: "signin.throttled", title: "Repeated wrong passwords are throttled with retryAfter", destructive: true, run: async (ctx) => {
+    needCredentials(ctx);
+    for (let i = 0; i < 25; i++) {
+      const res = await call(ctx, "POST", need(ctx, "nativeSignIn"), { body: { email: ctx.config.email, password: `wrong-${i}`, device } });
+      if (res.status === 429) {
+        expectProblem(res, 429, "throttled");
+        expect(Number.isInteger(res.json.retryAfter), "throttled carries no retryAfter");
+        return;
+      }
+    }
+    fail("25 wrong passwords were never throttled");
   } },
 ];
 
