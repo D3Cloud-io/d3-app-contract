@@ -49,10 +49,11 @@ jobs:
     permissions:
       contents: read
       packages: write
-    env:
-      IMAGE: ghcr.io/${{ github.repository_owner }}/d3-app-conformance
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # Image names must be lowercase and the owner is not (D3Cloud-io, GL-006): ghcr.io/d3cloud-io/d3-app-conformance.
+      - name: Image name
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/d3-app-conformance" >> "$GITHUB_ENV"
       - name: Build
         run: docker build -t "$IMAGE:sha-${GITHUB_SHA::7}" -t "$IMAGE:contract-1" .
       - name: Smoke test the image against the reference product

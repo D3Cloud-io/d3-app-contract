@@ -75,14 +75,14 @@ npm test           # the suite against the reference product, conforming and bro
 ```
 
 CI runs both on every push, smoke-tests the CLI and the image against the reference product, and on
-`main` publishes the image as `ghcr.io/matdemers1/d3-app-conformance:contract-1` (and `:sha-<commit>`).
+`main` publishes the image as `ghcr.io/d3cloud-io/d3-app-conformance:contract-1` (and `:sha-<commit>`).
 
 ## Running the suite in a product's CI (CON-REQ-026)
 
 Start the product's test instance with a seeded account that has an authenticator, then:
 
 ```bash
-docker run --rm --network host ghcr.io/matdemers1/d3-app-conformance:contract-1 \
+docker run --rm --network host ghcr.io/d3cloud-io/d3-app-conformance:contract-1 \
   --base http://localhost:8080 --allow-http --product bindery \
   --email ci@example.com --password "$CI_PASSWORD" --totp-secret "$CI_TOTP_SECRET" \
   --junit conformance.xml

@@ -1,5 +1,5 @@
 # The D3 App conformance suite as an image a product's CI runs against its test instance:
-#   docker run --rm --network host ghcr.io/matdemers1/d3-app-conformance:contract-1 \
+#   docker run --rm --network host ghcr.io/d3cloud-io/d3-app-conformance:contract-1 \
 #     --base http://localhost:8080 --allow-http --product bindery --email … --password … --totp-secret …
 FROM node:22-alpine
 WORKDIR /contract
